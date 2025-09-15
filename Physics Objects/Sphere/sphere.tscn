@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://kntap0c674p1"]
+
+[ext_resource type="PackedScene" uid="uid://drhiwnyfk8a2u" path="res://Physics Objects/Object Base/obj_base.tscn" id="1_na2c7"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_na2c7"]
+bounce = 3.35
+
+[sub_resource type="SphereMesh" id="SphereMesh_na2c7"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_xt18f"]
+
+[node name="Sphere" instance=ExtResource("1_na2c7")]
+physics_material_override = SubResource("PhysicsMaterial_na2c7")
+
+[node name="MeshInstance3D" parent="." index="0"]
+mesh = SubResource("SphereMesh_na2c7")
+
+[node name="CollisionShape3D" parent="." index="1"]
+shape = SubResource("SphereShape3D_xt18f")

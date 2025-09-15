@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3 uid="uid://bqcty35encudy"]
+
+[ext_resource type="Script" uid="uid://becct1a54wq8" path="res://Scenes/UI/Add Floor/add_floor.gd" id="1_3u46c"]
+
+[node name="Add Floor" type="Window"]
+initial_position = 1
+size = Vector2i(185, 130)
+visible = false
+script = ExtResource("1_3u46c")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Enter Floor Dimensions"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "X:"
+
+[node name="X-dim" type="LineEdit" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Z:"
+
+[node name="Z-dim" type="LineEdit" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Add"
+
+[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_button_pressed"]

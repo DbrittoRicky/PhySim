@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://m0ggrkjhsx3x"]
+
+[ext_resource type="Script" uid="uid://bc3nk5i2na84b" path="res://Scenes/UI/spawn_button/button.gd" id="1_cu3f8"]
+
+[node name="Spawn_button" type="Button"]
+offset_right = 8.0
+offset_bottom = 8.0
+script = ExtResource("1_cu3f8")
+
+[connection signal="pressed" from="." to="." method="_on_pressed"]

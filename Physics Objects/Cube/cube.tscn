@@ -1,0 +1,21 @@
+[gd_scene load_steps=6 format=3 uid="uid://duempp52ehfdr"]
+
+[ext_resource type="PackedScene" uid="uid://drhiwnyfk8a2u" path="res://Physics Objects/Object Base/obj_base.tscn" id="1_nhm5u"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_rsabu"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nhm5u"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_nhm5u"]
+material = SubResource("StandardMaterial3D_nhm5u")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0hvs1"]
+
+[node name="Cube" instance=ExtResource("1_nhm5u")]
+physics_material_override = SubResource("PhysicsMaterial_rsabu")
+
+[node name="MeshInstance3D" parent="." index="0"]
+mesh = SubResource("BoxMesh_nhm5u")
+
+[node name="CollisionShape3D" parent="." index="1"]
+shape = SubResource("BoxShape3D_0hvs1")

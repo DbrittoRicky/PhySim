@@ -1,0 +1,18 @@
+[gd_scene load_steps=5 format=3 uid="uid://dii8er3bmt6nr"]
+
+[ext_resource type="PackedScene" uid="uid://drhiwnyfk8a2u" path="res://Physics Objects/Object Base/obj_base.tscn" id="1_rqack"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_rqack"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_jra2r"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ve5n1"]
+
+[node name="Cylinder" instance=ExtResource("1_rqack")]
+physics_material_override = SubResource("PhysicsMaterial_rqack")
+
+[node name="MeshInstance3D" parent="." index="0"]
+mesh = SubResource("CylinderMesh_jra2r")
+
+[node name="CollisionShape3D" parent="." index="1"]
+shape = SubResource("CylinderShape3D_ve5n1")

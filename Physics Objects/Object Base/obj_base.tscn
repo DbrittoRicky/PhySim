@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://drhiwnyfk8a2u"]
+
+[ext_resource type="Script" uid="uid://i5t0v878wk5p" path="res://Physics Objects/Object Base/obj_base.gd" id="1_hwmvi"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_p316a"]
+
+[node name="Obj_Base" type="RigidBody3D"]
+physics_material_override = SubResource("PhysicsMaterial_p316a")
+script = ExtResource("1_hwmvi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
