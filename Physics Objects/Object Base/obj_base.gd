@@ -10,7 +10,8 @@ func _ready() -> void:
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	apply_air_drag()
 	#despawn()
 	if Input.is_action_just_pressed("ui_accept"):
 		linear_velocity.y = 10
@@ -24,3 +25,10 @@ func set_color() -> void:
 func despawn() -> void:
 	if global_position.y <= -50:
 		queue_free()
+
+func apply_air_drag() -> void:
+	var drag_coefficient = EnvironmentManager.get_drag_coefficeint()
+	
+	if drag_coefficient > 0.0:
+		var drag_force = -linear_velocity * drag_coefficient
+		apply_central_force(drag_force)

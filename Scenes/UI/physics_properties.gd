@@ -7,12 +7,16 @@ class_name  Physics_prop
 @onready var bounce: HSlider = $Bounce
 @onready var check_box: CheckBox = $CheckBox
 @onready var check_box_2: CheckBox = $CheckBox2
+@onready var linear_damp: HSlider = $Linear_damp
+@onready var angular_damp: HSlider = $Angular_damp
 
 # Labels for the values
 @onready var mass_lab: Label = $"Mass-lab"
 @onready var gravity_scale_lab: Label = $"Gravity Scale-lab"
 @onready var friction_label: Label = $"Friction label"
 @onready var bounce_lab: Label = $"Bounce-lab"
+@onready var linear_damp_label: Label = $"Linear Damp Label"
+@onready var angular_damp_label: Label = $"Angular Damp Label"
 
 
 var current_node: Node = null
@@ -66,8 +70,13 @@ func _on_absorb_toggled(pressed: bool) -> void:
 	if current_material:
 		current_material.absorbent = pressed
 
+func _on_linear_damp_changed(value: float) -> void:
+	if current_node:
+		current_node.linear_damp = value
 
-
+func _on_angular_damp_changed(value: float) -> void:
+	if current_node:
+		current_node.angular_damp = value
 
 func _on_bounce_value_changed(value: float) -> void:
 	_on_bounce_changed(value)
@@ -87,9 +96,16 @@ func _on_mass_value_changed(value: float) -> void:
 func _on_gravity_scale_value_changed(value: float) -> void:
 	_on_gravity_scale_changed(value)
 
+func _on_linear_damp_value_changed(value: float) -> void:
+	_on_linear_damp_changed(value)
+
+func _on_angular_damp_value_changed(value: float) -> void:
+	_on_angular_damp_changed(value)
 
 func update_values() -> void:
 	mass_lab.text = "Mass(Kg): " + str(mass.value)
 	gravity_scale_lab.text = "Gravity Scale: " + str(gravity_scale.value)
 	friction_label.text = "Friction: " + str(friction.value)
 	bounce_lab.text = "Bounce: " + str(bounce.value)
+	linear_damp_label.text = "Linear Damp: " + str(linear_damp.value)
+	angular_damp_label.text = "Angular Damp: " + str(angular_damp.value)

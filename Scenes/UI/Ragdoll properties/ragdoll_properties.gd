@@ -51,7 +51,6 @@ func _on_linear_damp_changed(value: float):
 		bone.linear_damp = value
 
 
-
 # Signals that initiate the change
 func _on_massslider_value_changed(value: float) -> void:
 	_on_mass_changed(value)

@@ -6,8 +6,6 @@ extends Control
 @onready var item_list: ItemList = $Outliner/VBoxContainer/Objects/ItemList
 @onready var playback_button: Button = $Playback/Playback_button
 
-
-
 var name_counters := {}
 
 func _ready() -> void:
@@ -21,7 +19,6 @@ func ragdoll_button_pressed(ragdoll: PackedScene) -> void:
 	var base_name = new_ragdoll.name
 	var unique_name = _get_unique_name(base_name)
 	new_ragdoll.name = unique_name
-	
 	SignalManager.on_object_added(new_ragdoll)
 	new_ragdoll.global_position = Vector3(0,0,0)
 	add_child(new_ragdoll)

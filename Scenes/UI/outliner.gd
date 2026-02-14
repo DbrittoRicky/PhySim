@@ -21,10 +21,14 @@ func register_obj(obj: Node3D):
 func on_item_selected(obj:Node):
 	physics_properties.set_selected_object(obj)
 	physics_properties.visible = true
+	if ragdoll_properties.visible == true:
+		ragdoll_properties.visible = false
 	
 func on_ragdoll_selected(ragdoll: Ragdoll):
 	ragdoll_properties.set_selected_ragdoll(ragdoll)
 	ragdoll_properties.visible = true
+	if physics_properties.visible == true:
+		physics_properties.visible = false
 
 
 #func add_to_itemlist() -> void:

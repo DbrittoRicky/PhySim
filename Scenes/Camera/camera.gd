@@ -2,7 +2,7 @@ extends Camera3D
 @onready var ray_cast_3d: RayCast3D = $RayCast3D
 
 var physics_property
-
+var ragdoll_property
 var orbit_sensitivity := 0.005
 var pan_sensitivity := 0.01
 var zoom_sensitivity := 1.0
@@ -14,6 +14,7 @@ var target_position := Vector3.ZERO  # The point to orbit around
 
 func _ready():
 	physics_property = get_tree().get_first_node_in_group("Physics_property") #not the cleanest way of doing it, but it works
+	ragdoll_property = get_tree().get_first_node_in_group("Ragdoll Property")
 	pitch = deg_to_rad(20)  # tilt down a bit
 	distance = 10
 	target_position = Vector3.ZERO
@@ -38,10 +39,9 @@ func select_object_click():
 					physics_property.visible = true
 					SignalManager.on_camera_obj_selected(index)
 				if collider is Ragdoll:
-					var parent_1 = collider.get_parent_node_3d()
-					var parent_2 = parent_1.get_parent_node_3d()
-					var parent_3 = parent_2.get_parent_node_3d()
-					SignalManager.on_camera_obj_selected(parent_3)
+					var parent = collider.get_parent_node_3d()
+					var parent_2 = parent.get_parent_node_3d()
+					SignalManager.on_camera_obj_selected(parent_2)
 			
 
 func _unhandled_input(event):

@@ -18,7 +18,9 @@ text = "Mass"
 
 [node name="Mass" type="HSlider" parent="."]
 layout_mode = 2
+min_value = 1.0
 max_value = 1000.0
+value = 1.0
 
 [node name="Gravity Scale-lab" type="Label" parent="."]
 layout_mode = 2
@@ -26,6 +28,7 @@ text = "Gravity Scale"
 
 [node name="GravityScale" type="HSlider" parent="."]
 layout_mode = 2
+min_value = -8.0
 max_value = 8.0
 step = 0.1
 
@@ -57,9 +60,27 @@ layout_mode = 2
 focus_mode = 0
 text = "Absorbent"
 
+[node name="Linear Damp Label" type="Label" parent="."]
+layout_mode = 2
+text = "Linear Damp"
+
+[node name="Linear_damp" type="HSlider" parent="."]
+layout_mode = 2
+step = 0.1
+
+[node name="Angular Damp Label" type="Label" parent="."]
+layout_mode = 2
+text = "Angular Damp"
+
+[node name="Angular_damp" type="HSlider" parent="."]
+layout_mode = 2
+step = 0.1
+
 [connection signal="value_changed" from="Mass" to="." method="_on_mass_value_changed"]
 [connection signal="value_changed" from="GravityScale" to="." method="_on_gravity_scale_value_changed"]
 [connection signal="value_changed" from="Friction" to="." method="_on_friction_value_changed"]
 [connection signal="value_changed" from="Bounce" to="." method="_on_bounce_value_changed"]
 [connection signal="toggled" from="CheckBox" to="." method="_on_check_box_toggled"]
 [connection signal="toggled" from="CheckBox2" to="." method="_on_check_box_2_toggled"]
+[connection signal="value_changed" from="Linear_damp" to="." method="_on_linear_damp_value_changed"]
+[connection signal="value_changed" from="Angular_damp" to="." method="_on_angular_damp_value_changed"]

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dsefbfby5gi1p" path="res://Scenes/UI/Ragdoll properties/ragdoll_properties.gd" id="1_cee2f"]
 
-[node name="Ragdoll properties" type="VBoxContainer"]
+[node name="Ragdoll properties" type="VBoxContainer" groups=["Ragdoll Property"]]
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_cee2f")
