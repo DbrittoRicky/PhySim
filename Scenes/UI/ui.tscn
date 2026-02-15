@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://cla2vlfh1rsee"]
+[gd_scene load_steps=18 format=3 uid="uid://cla2vlfh1rsee"]
 
 [ext_resource type="Script" uid="uid://jido5214h7ss" path="res://Scenes/UI/ui.gd" id="1_ahcct"]
 [ext_resource type="PackedScene" uid="uid://m0ggrkjhsx3x" path="res://Scenes/UI/spawn_button/physics_obj_button.tscn" id="3_c7mb3"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://co4bukhj8le3g" path="res://Scenes/UI/outliner.gd" id="7_duuxe"]
 [ext_resource type="Script" uid="uid://f77gk21jekcc" path="res://Scenes/UI/item_list.gd" id="8_mbl0m"]
 [ext_resource type="PackedScene" uid="uid://c125jsyod0vrv" path="res://Scenes/UI/Physics Properties/physics_properties.tscn" id="9_pmm6b"]
+[ext_resource type="PackedScene" uid="uid://dwdxpcmpkfhta" path="res://Scenes/UI/Add Fluid/add_fluid.tscn" id="10_fevae"]
 [ext_resource type="Script" uid="uid://b2yh4jyhw83qg" path="res://Scenes/UI/playback.gd" id="10_s3gqk"]
 [ext_resource type="Script" uid="uid://c3rmji4c7n1ds" path="res://Scenes/UI/metrics.gd" id="11_pmm6b"]
 [ext_resource type="PackedScene" uid="uid://b26c1oaxfsqm2" path="res://Scenes/UI/Ragdoll properties/ragdoll_properties.tscn" id="12_h6tq4"]
@@ -83,18 +84,24 @@ layout_mode = 2
 layout_mode = 2
 ragdoll = ExtResource("6_vy225")
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="Top Panel/HBoxContainer"]
+[node name="VBOx" type="VBoxContainer" parent="Top Panel/HBoxContainer"]
 layout_mode = 2
 
-[node name="Add_Floor" type="Button" parent="Top Panel/HBoxContainer/HBoxContainer2"]
+[node name="Add_Floor" type="Button" parent="Top Panel/HBoxContainer/VBOx"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
 focus_mode = 0
 text = "Floor"
 
-[node name="Add Floor" parent="Top Panel/HBoxContainer/HBoxContainer2" instance=ExtResource("4_fo61o")]
+[node name="Add Floor" parent="Top Panel/HBoxContainer/VBOx" instance=ExtResource("4_fo61o")]
 exclusive = true
+
+[node name="Button" type="Button" parent="Top Panel/HBoxContainer/VBOx"]
+layout_mode = 2
+text = "Fluid"
+
+[node name="Add Fluid" parent="Top Panel/HBoxContainer/VBOx" instance=ExtResource("10_fevae")]
 
 [node name="Outliner" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -209,7 +216,8 @@ popup/item_0/id = 0
 popup/item_1/text = "Atmosphere"
 popup/item_1/id = 1
 
-[connection signal="pressed" from="Top Panel/HBoxContainer/HBoxContainer2/Add_Floor" to="." method="_on_add_floor_pressed"]
+[connection signal="pressed" from="Top Panel/HBoxContainer/VBOx/Add_Floor" to="." method="_on_add_floor_pressed"]
+[connection signal="pressed" from="Top Panel/HBoxContainer/VBOx/Button" to="." method="_on_button_pressed"]
 [connection signal="item_selected" from="Outliner/VBoxContainer/Objects/ItemList" to="Outliner/VBoxContainer/Objects/ItemList" method="_on_item_selected"]
 [connection signal="pressed" from="Playback/HBoxContainer/Playback_button" to="Playback" method="_on_playback_button_pressed"]
 [connection signal="pressed" from="Playback/HBoxContainer/Step_button" to="Playback" method="_on_step_button_pressed"]

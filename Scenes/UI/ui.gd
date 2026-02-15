@@ -2,9 +2,10 @@ extends Control
 
 #Probably the messiest script in the project for now
 
-@onready var add_floor: Window = $"Top Panel/HBoxContainer/HBoxContainer2/Add Floor"
+@onready var add_floor: Window = $"Top Panel/HBoxContainer/VBOx/Add Floor"
 @onready var item_list: ItemList = $Outliner/VBoxContainer/Objects/ItemList
 @onready var playback_button: Button = $Playback/Playback_button
+@onready var add_fluid: Window = $"Top Panel/HBoxContainer/VBOx/Add Fluid"
 
 var name_counters := {}
 
@@ -59,3 +60,8 @@ func _get_unique_name(base_name: String) -> String:
 
 func _on_add_floor_pressed() -> void:
 	add_floor.visible = true
+
+
+func _on_button_pressed() -> void:
+	add_fluid.visible = true
+	

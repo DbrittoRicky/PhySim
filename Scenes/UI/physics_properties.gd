@@ -49,6 +49,7 @@ func _clear_ui() -> void:
 func _on_mass_changed(value: float) -> void:
 	if current_node:
 		current_node.mass = value
+		(current_node as Phy_Obj).object_density = (current_node as Phy_Obj).calculate_density()
 
 func _on_gravity_scale_changed(value: float) -> void:
 	if current_node:

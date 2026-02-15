@@ -30,7 +30,7 @@ func select_object_click():
 	var nodes = get_tree().get_nodes_in_group("obj")
 	if ray_cast_3d.is_colliding():
 		var collider = ray_cast_3d.get_collider()
-		print(collider)
+		#print(collider)
 		if collider.is_in_group("obj"):
 			var index = nodes.find(collider)
 			if Input.is_action_just_pressed("Click"):

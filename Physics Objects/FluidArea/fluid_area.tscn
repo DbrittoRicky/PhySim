@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://fm2ldtpbavic"]
+
+[ext_resource type="Script" uid="uid://wg2j3lyokafp" path="res://Physics Objects/FluidArea/fluid_area.gd" id="1_8suw0"]
+
+[node name="FluidArea" type="Area3D"]
+script = ExtResource("1_8suw0")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]

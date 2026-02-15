@@ -1,0 +1,57 @@
+[gd_scene load_steps=2 format=3 uid="uid://dwdxpcmpkfhta"]
+
+[ext_resource type="Script" uid="uid://brtu2ucjnf1nb" path="res://Scenes/UI/Add Fluid/add_fluid.gd" id="1_txktv"]
+
+[node name="Add Fluid" type="Window"]
+oversampling_override = 1.0
+title = "Enter Fluid Dimensions"
+initial_position = 1
+size = Vector2i(256, 157)
+visible = false
+script = ExtResource("1_txktv")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "X:"
+
+[node name="X_dim" type="LineEdit" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Y:"
+
+[node name="Y_dim" type="LineEdit" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "Z:"
+
+[node name="Z_dim" type="LineEdit" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Add"
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_button_pressed"]
