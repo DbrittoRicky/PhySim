@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://b4dawnm4mtw43"]
+
+[ext_resource type="PackedScene" uid="uid://drhiwnyfk8a2u" path="res://Physics Objects/Object Base/obj_base.tscn" id="1_6mfs0"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_jofp2"]
+size = Vector3(1, 1, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pamn0"]
+size = Vector3(1, 1, 2)
+
+[node name="Cuboid" instance=ExtResource("1_6mfs0")]
+
+[node name="MeshInstance3D" parent="." index="0"]
+mesh = SubResource("BoxMesh_jofp2")
+
+[node name="CollisionShape3D" parent="." index="1"]
+shape = SubResource("BoxShape3D_pamn0")
