@@ -4,7 +4,7 @@ extends Control
 
 @onready var add_floor: Window = $"Top Panel/HBoxContainer/VBOx/Add Floor"
 @onready var item_list: ItemList = $Outliner/VBoxContainer/Objects/ItemList
-@onready var playback_button: Button = $Playback/Playback_button
+@onready var playback_button: Button = $Playback/HBoxContainer/Playback_button
 @onready var add_fluid: Window = $"Top Panel/HBoxContainer/VBOx/Add Fluid"
 
 var name_counters := {}

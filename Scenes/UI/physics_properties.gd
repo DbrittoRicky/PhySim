@@ -1,7 +1,6 @@
 extends VBoxContainer
 class_name  Physics_prop
 # Actual Values
-@onready var mass: HSlider = $Mass
 @onready var gravity_scale: HSlider = $GravityScale
 @onready var friction: HSlider = $Friction
 @onready var bounce: HSlider = $Bounce
@@ -9,6 +8,7 @@ class_name  Physics_prop
 @onready var check_box_2: CheckBox = $CheckBox2
 @onready var linear_damp: HSlider = $Linear_damp
 @onready var angular_damp: HSlider = $Angular_damp
+@onready var mass_edit: LineEdit = $mass_edit
 
 # Labels for the values
 @onready var mass_lab: Label = $"Mass-lab"
@@ -32,7 +32,7 @@ func set_selected_object(obj: Node) -> void:
 
 
 func _update_ui_from_material() -> void:
-	mass.value = current_node.mass
+	mass_edit.text = str(current_node.mass)
 	gravity_scale.value = current_node.gravity_scale
 	friction.value = current_material.friction
 	bounce.value = current_material.bounce
@@ -91,9 +91,6 @@ func _on_check_box_toggled(toggled_on: bool) -> void:
 func _on_check_box_2_toggled(toggled_on: bool) -> void:
 	_on_absorb_toggled(toggled_on)
 
-func _on_mass_value_changed(value: float) -> void:
-	_on_mass_changed(value)
-
 func _on_gravity_scale_value_changed(value: float) -> void:
 	_on_gravity_scale_changed(value)
 
@@ -104,9 +101,14 @@ func _on_angular_damp_value_changed(value: float) -> void:
 	_on_angular_damp_changed(value)
 
 func update_values() -> void:
-	mass_lab.text = "Mass(Kg): " + str(mass.value)
+	mass_lab.text = "Mass(Kg): " + mass_edit.text
 	gravity_scale_lab.text = "Gravity Scale: " + str(gravity_scale.value)
 	friction_label.text = "Friction: " + str(friction.value)
 	bounce_lab.text = "Bounce: " + str(bounce.value)
 	linear_damp_label.text = "Linear Damp: " + str(linear_damp.value)
 	angular_damp_label.text = "Angular Damp: " + str(angular_damp.value)
+
+
+func _on_mass_edit_text_submitted(new_text: String) -> void:
+	_on_mass_changed(float(new_text))
+	print(current_node.mass)
