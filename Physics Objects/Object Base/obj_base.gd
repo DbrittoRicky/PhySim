@@ -9,6 +9,8 @@ class_name Phy_Obj
 @export var object_density: float = 500.0  # kg/m³ (< 1000 floats in water, > 1000 sinks)
 
 var is_in_fluid := false
+var _outline_material: StandardMaterial3D = null
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	set_color()
@@ -91,3 +93,41 @@ func get_body_height_y() -> float:
 	if s is ConvexPolygonShape3D:
 		return 1.0
 	return 1.0
+
+func highlight() -> void:
+	if _outline_material:
+		return  # already highlighted
+
+	_outline_material = StandardMaterial3D.new()
+
+	# Render on top of the base material as a second pass
+	_outline_material.next_pass = null
+	_outline_material.render_priority = 1
+
+	# Scale the mesh slightly larger so it peeks out behind the base mesh
+	_outline_material.grow = true
+	_outline_material.grow_amount = 0.04  # tweak 0.02–0.08 to taste
+
+	# Cull front faces so only the "shell" edge is visible
+	_outline_material.cull_mode = BaseMaterial3D.CULL_FRONT
+
+	# Bright emission so the outline is always visible regardless of lighting
+	_outline_material.emission_enabled = true
+	_outline_material.emission = Color(1.0, 0.65, 0.0)  # orange — easy to read
+	_outline_material.emission_energy_multiplier = 2.0
+	_outline_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+	# Attach as second-pass on the existing base material
+	var base_mat = mesh_instance_3d.material_override
+	if base_mat:
+		base_mat.next_pass = _outline_material
+
+func unhighlight() -> void:
+	if not _outline_material:
+		return
+
+	var base_mat = mesh_instance_3d.material_override
+	if base_mat:
+		base_mat.next_pass = null
+
+	_outline_material = null

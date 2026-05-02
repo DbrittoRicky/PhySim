@@ -22,13 +22,20 @@ class_name  Physics_prop
 var current_node: Node = null
 var current_material: PhysicsMaterial = null
 
+func _ready() -> void:
+	visibility_changed.connect(_on_visibility_changed)
+
 func _process(delta: float) -> void:
 	update_values()
 
 func set_selected_object(obj: Node) -> void:
+	if current_node and current_node is Phy_Obj:
+		(current_node as Phy_Obj).unhighlight()
 	current_node = obj
 	current_material = current_node.physics_material_override
 	_update_ui_from_material()
+	if current_node is Phy_Obj:
+		(current_node as Phy_Obj).highlight()
 
 
 func _update_ui_from_material() -> void:
@@ -112,3 +119,8 @@ func update_values() -> void:
 func _on_mass_edit_text_submitted(new_text: String) -> void:
 	_on_mass_changed(float(new_text))
 	print(current_node.mass)
+
+func _on_visibility_changed() -> void:
+	if not visible and current_node and current_node is Phy_Obj:
+		(current_node as Phy_Obj).unhighlight()
+		current_node = null

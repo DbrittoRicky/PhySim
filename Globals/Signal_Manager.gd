@@ -3,6 +3,7 @@ extends Node
 signal spawn_button_pressed(object: PackedScene)
 signal object_added(obj: Node3D)
 signal object_selected(obj: Node)
+signal object_deselected()
 signal camera_obj_selected(obj: Node)
 signal ragdoll_button_pressed(ragdoll: PackedScene)
 signal ragdoll_selected(ragdoll: Node)
@@ -40,3 +41,6 @@ func on_env_state_changed(state: EnvironmentManager.EnvState):
 
 func on_fluid_spawned(fluidArea: FluidVolume3D):
 	fluid_spawned.emit(fluidArea)
+	
+func on_object_deselected():
+	object_deselected.emit()
