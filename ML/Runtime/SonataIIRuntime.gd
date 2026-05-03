@@ -5,16 +5,17 @@
 class_name SonataIIRuntime
 extends RefCounted
 
-const NMAX    : int = 6
-const WINDOW  : int = 10
-const HORIZON : int = 3
-const NTARGET : int = 13
-const NDYN    : int = 20    # 13 core state + 7 zero-padding
-const NNBR    : int = 7     # centroid_offset(3) + rel_vel(3) + mean_dist(1)
-const NCTX    : int = 27    # NDYN + NNBR — per object per frame
-const NSTATIC : int = 11    # per-object static features
-const NSCENE  : int = 3     # gravity xyz
-const JOLT_RESYNC_EVERY : int = HORIZON + 1   # 4
+const NMAX                : int = 6
+const WINDOW              : int = 10
+const HORIZON             : int = 3
+const NTARGET             : int = 13
+const NDYN                : int = 20    # 13 core state + 7 zero-padding
+const NNBR                : int = 7     # distance(1) + dpos(3) + dvel(3)
+const NCTX                : int = 27    # NDYN + NNBR — per object per frame
+const NSTATIC             : int = 11    # per-object static features
+const NSCENE              : int = 3     # [env_state_binary, air_drag_coefficient, n_objects]
+const JOLT_RESYNC_EVERY   : int = HORIZON + 1   # 4
+const RESYNC_HOLD_FRAMES  : int = WINDOW        # 10 — Jolt frames held after each resync
 
 # ── Norm stats ─────────────────────────────────────────────────────────────────
 var _ss_mean  : PackedFloat32Array   # scene_static  [NSCENE]
@@ -23,7 +24,7 @@ var _os_mean  : PackedFloat32Array   # obj_static    [NSTATIC]
 var _os_std   : PackedFloat32Array
 var _dyn_mean : PackedFloat32Array   # obj_dynamic   [NDYN]
 var _dyn_std  : PackedFloat32Array
-var _nbr_mean : PackedFloat32Array   # neighbourhood [NNBR]
+var _nbr_mean : PackedFloat32Array   # pairwise      [NNBR]
 var _nbr_std  : PackedFloat32Array
 var _tgt_mean : PackedFloat32Array   # target        [NTARGET]
 var _tgt_std  : PackedFloat32Array
@@ -34,14 +35,15 @@ var _objects  : Array       # Array[RigidBody3D], len ≤ NMAX
 var _gravity  : Vector3
 var _mask     : PackedFloat32Array   # [NMAX]  1.0=active  0.0=padded
 
-# ── Cached obj_static (constant per scenario) ──────────────────────────────────
+# ── Cached obj_static (constant per scenario, rebuilt on gravity_scale change) ─
 var _obj_static_norm : PackedFloat32Array   # [NMAX × NSTATIC]
 
 # ── Ring buffer ─────────────────────────────────────────────────────────────────
-var _ring      : PackedFloat32Array   # [WINDOW × NMAX × NCTX]
-var _ring_head : int = 0
-var _seen      : int = 0
-var _cycle     : int = 0
+var _ring         : PackedFloat32Array   # [WINDOW × NMAX × NCTX]
+var _ring_head    : int = 0
+var _seen         : int = 0
+var _cycle        : int = 0
+var _resync_hold  : int = 0   # countdown: Jolt frames remaining in resync hold
 
 # ── Public ──────────────────────────────────────────────────────────────────────
 func initialize(ml: Node, objects: Array, gravity: Vector3,
@@ -57,25 +59,38 @@ func initialize(ml: Node, objects: Array, gravity: Vector3,
 	_full_reset()
 	return true
 
+## Call this whenever gravity_scale changes on any object in the cluster.
+func refresh_obj_static() -> void:
+	_build_obj_static_norm()
+
 func step() -> bool:
 	if not _ml or _objects.is_empty(): return false
+
+	# ── Resync hold: keep Jolt running, fill ring with real physics truth ──────
+	if _resync_hold > 0:
+		_push(_build_ctx_frame())
+		_resync_hold -= 1
+		return false
+
 	_cycle = (_cycle + 1) % JOLT_RESYNC_EVERY
 
 	if _cycle == 0:
 		_unfreeze()
 		_reset()
+		_resync_hold = RESYNC_HOLD_FRAMES
 		return false
 
+	# ── ML tick ───────────────────────────────────────────────────────────────
 	_freeze()
 	_push(_build_ctx_frame())
 	if _seen < WINDOW: return false
 
-	var ss   := _build_scene_static_norm()        # [NSCENE]
-	var ctx  := _assemble_context()               # [WINDOW × NMAX × NCTX]
+	var ss   := _build_scene_static_norm()
+	var ctx  := _assemble_context()
 	var pred : PackedFloat32Array = _ml.run_sonata2(ss, _obj_static_norm, ctx, _mask)
 
 	if pred.is_empty(): return false
-	_apply(_extract_step(pred, 0))   # step 0 of the 3-horizon prediction
+	_apply(_extract_step(pred, 0))
 	return true
 
 # ── Context frame builder ──────────────────────────────────────────────────────
@@ -84,8 +99,7 @@ func _build_ctx_frame() -> PackedFloat32Array:
 	frame.resize(NMAX * NCTX)
 	frame.fill(0.0)
 
-	# Precompute world positions and velocities for neighbourhood stats
-	var wpos : Array = []   # Vector3 per slot
+	var wpos : Array = []
 	var wvel : Array = []
 	for i in range(NMAX):
 		if i < _objects.size() and _mask[i] > 0.5:
@@ -96,7 +110,6 @@ func _build_ctx_frame() -> PackedFloat32Array:
 			wpos.append(Vector3.ZERO)
 			wvel.append(Vector3.ZERO)
 
-	# Scene centroid and mean velocity (active slots only)
 	var n_active : int = 0
 	var centroid := Vector3.ZERO
 	var mean_vel := Vector3.ZERO
@@ -110,8 +123,8 @@ func _build_ctx_frame() -> PackedFloat32Array:
 		mean_vel /= float(n_active)
 
 	for i in range(NMAX):
-		if _mask[i] < 0.5: continue   # padded slot stays zero
-		var obj := _objects[i] as RigidBody3D
+		if _mask[i] < 0.5: continue
+		var obj  := _objects[i] as RigidBody3D
 		var base := i * NCTX
 
 		# ── NDYN block (0..19): 13 core state + 7 zeros ──────────────────────
@@ -127,13 +140,15 @@ func _build_ctx_frame() -> PackedFloat32Array:
 		])
 		for f in range(NTARGET):
 			frame[base + f] = (core[f] - _dyn_mean[f]) / maxf(_dyn_std[f], 1e-8)
-		# Channels 13–19 remain 0.0 (padding already done by fill)
+		# Channels 13–19 remain 0.0
 
-		# ── NNBR block (20..26): neighbourhood summary ────────────────────────
-		var co  : Vector3= wpos[i] - centroid                   # centroid offset (3)
-		var rv  : Vector3= wvel[i] - mean_vel                   # relative velocity (3)
-		var md  := _mean_dist(i, wpos)                  # mean inter-object dist (1)
-		var nbr := PackedFloat32Array([co.x, co.y, co.z, rv.x, rv.y, rv.z, md])
+		# ── NNBR block (20..26): pairwise summary ─────────────────────────────
+		# Order MUST match normstats_sonata2.json pairwise feature order:
+		# [distance(1), dpos_x(1), dpos_y(1), dpos_z(1), dvel_x(1), dvel_y(1), dvel_z(1)]
+		var md  : float = _mean_dist(i, wpos)          # distance
+		var co  : Vector3 = wpos[i] - centroid            # dpos xyz
+		var rv  : Vector3 = wvel[i] - mean_vel            # dvel xyz
+		var nbr := PackedFloat32Array([md, co.x, co.y, co.z, rv.x, rv.y, rv.z])
 		for f in range(NNBR):
 			frame[base + NDYN + f] = (nbr[f] - _nbr_mean[f]) / maxf(_nbr_std[f], 1e-8)
 
@@ -154,10 +169,11 @@ func _reset() -> void:
 	_ring.resize(WINDOW * NMAX * NCTX)
 	_ring.fill(0.0)
 	_ring_head = 0
-	_seen = 0
-	
+	_seen      = 0
+
 func _full_reset() -> void:
-	_cycle = 0
+	_cycle       = 0
+	_resync_hold = 0
 	_reset()
 
 func _push(frame: PackedFloat32Array) -> void:
@@ -176,7 +192,6 @@ func _assemble_context() -> PackedFloat32Array:
 	return ctx
 
 # ── Prediction apply ────────────────────────────────────────────────────────────
-# pred: flat [NMAX × HORIZON × NTARGET], step=0 returns [NMAX × NTARGET]
 func _extract_step(pred: PackedFloat32Array, step: int) -> PackedFloat32Array:
 	var out := PackedFloat32Array(); out.resize(NMAX * NTARGET)
 	for i in range(NMAX):
@@ -214,18 +229,19 @@ func _apply(step_pred: PackedFloat32Array) -> void:
 
 # ── Scene static ────────────────────────────────────────────────────────────────
 func _build_scene_static_norm() -> PackedFloat32Array:
-# scene_static channels: [env_state_binary, air_drag_coefficient, n_objects]
-# env_state_binary = 0 (ground regime, no fluid)
+	# scene_static channels: [env_state_binary, air_drag_coefficient, n_objects]
 	var air_drag : float = 0.0
 	if Engine.has_singleton("EnvironmentManager"):
 		air_drag = EnvironmentManager.get_drag_coefficient()
-	var n_obj := float(_objects.size())
+	var n_obj := 0.0
+	for i in range(_objects.size()):
+		if _mask[i] > 0.5: n_obj += 1.0
 	var ss := PackedFloat32Array([0.0, air_drag, n_obj])
 	for i in range(NSCENE):
 		ss[i] = (ss[i] - _ss_mean[i]) / maxf(_ss_std[i], 1e-8)
 	return ss
 
-# ── obj_static (constant per scenario) ─────────────────────────────────────────
+# ── obj_static ──────────────────────────────────────────────────────────────────
 func _build_obj_static_norm() -> void:
 	_obj_static_norm = PackedFloat32Array()
 	_obj_static_norm.resize(NMAX * NSTATIC)
@@ -239,9 +255,9 @@ func _build_obj_static_norm() -> void:
 			_obj_static_norm[base + f] = (raw[f] - _os_mean[f]) / maxf(_os_std[f], 1e-8)
 
 func _extract_obj_static_raw(obj: RigidBody3D) -> PackedFloat32Array:
-	# Features: mass(1) gravity_scale(1) gravity_mag(1) friction(1) bounce(1)
-	#           linear_damp(1) angular_damp(1) shape_type_int(1) dim_primary(1)
-	#           dim_secondary(1) env_state_binary(1)  →  11 total
+	# mass(1) gravity_scale(1) gravity_mag(1) friction(1) bounce(1)
+	# linear_damp(1) angular_damp(1) shape_type_int(1) dim_primary(1)
+	# dim_secondary(1) env_state_binary(1)  →  11 total
 	return PackedFloat32Array([
 		obj.mass,
 		obj.gravity_scale,
@@ -288,15 +304,16 @@ func _load_stats(path: String) -> bool:
 	_ss_std   = PackedFloat32Array(j["scene_static"]["std"])
 	_os_mean  = PackedFloat32Array(j["obj_static"]["mean"])
 	_os_std   = PackedFloat32Array(j["obj_static"]["std"])
-	
+
 	var dyn : Dictionary = j["obj_dynamic"]
-	_dyn_mean = PackedFloat32Array(dyn["mean"])  
-	_dyn_std  = PackedFloat32Array(dyn["std"])  
-	
-	_nbr_mean = PackedFloat32Array(j["pairwise"]["mean"])   
-	_nbr_std  = PackedFloat32Array(j["pairwise"]["std"])    
-	
+	_dyn_mean = PackedFloat32Array(dyn["mean"])
+	_dyn_std  = PackedFloat32Array(dyn["std"])
+
+	_nbr_mean = PackedFloat32Array(j["pairwise"]["mean"])
+	_nbr_std  = PackedFloat32Array(j["pairwise"]["std"])
+
+	# Target distribution: first NTARGET channels of obj_dynamic
+	# (pos3 + quat4 + linvel3 + angvel3 — no derived features)
 	_tgt_mean = PackedFloat32Array(Array(dyn["mean"]).slice(0, NTARGET))
 	_tgt_std  = PackedFloat32Array(Array(dyn["std"]).slice(0, NTARGET))
 	return true
-	
