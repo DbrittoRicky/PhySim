@@ -15,7 +15,7 @@ func _ready() -> void:
 func set_state(new_state: EnvState) -> void:
 	current_state = new_state
 
-func get_drag_coefficeint() -> float:
+func get_drag_coefficient() -> float:
 	match current_state:
 		EnvState.VACCUM:
 			return 0.0
