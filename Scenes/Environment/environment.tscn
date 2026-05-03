@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bf6eflxq5m3cp" path="res://Scenes/Environment/environment.gd" id="1_jhh7m"]
 [ext_resource type="PackedScene" uid="uid://ed5habgb38k" path="res://Scenes/Camera/camera.tscn" id="3_13gqk"]
 [ext_resource type="PackedScene" uid="uid://cla2vlfh1rsee" path="res://Scenes/UI/ui.tscn" id="3_owdl0"]
+[ext_resource type="Script" uid="uid://t3o4yll6w1s6" path="res://Scenes/Environment/MlSceneManager.gd" id="4_owdl0"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_gjqhg"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -32,3 +33,6 @@ transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 2, 4)
 
 [node name="UI" parent="." unique_id=113451521 instance=ExtResource("3_owdl0")]
 mouse_filter = 2
+
+[node name="MLSceneManager" type="Node3D" parent="." unique_id=134645868]
+script = ExtResource("4_owdl0")
