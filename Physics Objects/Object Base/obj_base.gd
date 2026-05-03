@@ -38,7 +38,7 @@ func despawn() -> void:
 		queue_free()
 
 func apply_air_drag() -> void:
-	var drag_coefficient = EnvironmentManager.get_drag_coefficeint()
+	var drag_coefficient = EnvironmentManager.get_drag_coefficient()
 	
 	if drag_coefficient > 0.0:
 		var drag_force = -linear_velocity * drag_coefficient

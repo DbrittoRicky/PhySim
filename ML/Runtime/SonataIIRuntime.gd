@@ -54,7 +54,7 @@ func initialize(ml: Node, objects: Array, gravity: Vector3,
 		return false
 	_build_mask()
 	_build_obj_static_norm()
-	_reset()
+	_full_reset()
 	return true
 
 func step() -> bool:
@@ -153,7 +153,12 @@ func _reset() -> void:
 	_ring = PackedFloat32Array()
 	_ring.resize(WINDOW * NMAX * NCTX)
 	_ring.fill(0.0)
-	_ring_head = 0; _seen = 0; _cycle = 0
+	_ring_head = 0
+	_seen = 0
+	
+func _full_reset() -> void:
+	_cycle = 0
+	_reset()
 
 func _push(frame: PackedFloat32Array) -> void:
 	var base := _ring_head * NMAX * NCTX
@@ -215,7 +220,7 @@ func _build_scene_static_norm() -> PackedFloat32Array:
 	if Engine.has_singleton("EnvironmentManager"):
 		air_drag = EnvironmentManager.get_drag_coefficient()
 	var n_obj := float(_objects.size())
-	var ss := PackedFloat32Array([_gravity.x, _gravity.y, _gravity.z])
+	var ss := PackedFloat32Array([0.0, air_drag, n_obj])
 	for i in range(NSCENE):
 		ss[i] = (ss[i] - _ss_mean[i]) / maxf(_ss_std[i], 1e-8)
 	return ss
@@ -278,19 +283,20 @@ func _load_stats(path: String) -> bool:
 	if j.is_empty():
 		push_error("SonataIIRuntime: malformed JSON at %s" % path)
 		return false
-		
+
 	_ss_mean  = PackedFloat32Array(j["scene_static"]["mean"])
 	_ss_std   = PackedFloat32Array(j["scene_static"]["std"])
 	_os_mean  = PackedFloat32Array(j["obj_static"]["mean"])
 	_os_std   = PackedFloat32Array(j["obj_static"]["std"])
 	
 	var dyn : Dictionary = j["obj_dynamic"]
-	_dyn_mean = PackedFloat32Array(j["obj_dynamic"]["mean"])
-	_dyn_std  = PackedFloat32Array(j["obj_dynamic"]["std"])
+	_dyn_mean = PackedFloat32Array(dyn["mean"])  
+	_dyn_std  = PackedFloat32Array(dyn["std"])  
 	
-	_nbr_mean = PackedFloat32Array(j["neighbourhood"]["mean"])
-	_nbr_std  = PackedFloat32Array(j["neighbourhood"]["std"])
+	_nbr_mean = PackedFloat32Array(j["pairwise"]["mean"])   
+	_nbr_std  = PackedFloat32Array(j["pairwise"]["std"])    
 	
-	_tgt_mean = PackedFloat32Array(j["target"]["mean"])
-	_tgt_std  = PackedFloat32Array(j["target"]["std"])
+	_tgt_mean = PackedFloat32Array(Array(dyn["mean"]).slice(0, NTARGET))
+	_tgt_std  = PackedFloat32Array(Array(dyn["std"]).slice(0, NTARGET))
 	return true
+	
