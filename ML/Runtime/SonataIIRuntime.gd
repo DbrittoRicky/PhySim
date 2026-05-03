@@ -209,6 +209,12 @@ func _apply(step_pred: PackedFloat32Array) -> void:
 
 # ── Scene static ────────────────────────────────────────────────────────────────
 func _build_scene_static_norm() -> PackedFloat32Array:
+# scene_static channels: [env_state_binary, air_drag_coefficient, n_objects]
+# env_state_binary = 0 (ground regime, no fluid)
+	var air_drag : float = 0.0
+	if Engine.has_singleton("EnvironmentManager"):
+		air_drag = EnvironmentManager.get_drag_coefficient()
+	var n_obj := float(_objects.size())
 	var ss := PackedFloat32Array([_gravity.x, _gravity.y, _gravity.z])
 	for i in range(NSCENE):
 		ss[i] = (ss[i] - _ss_mean[i]) / maxf(_ss_std[i], 1e-8)
@@ -234,19 +240,16 @@ func _extract_obj_static_raw(obj: RigidBody3D) -> PackedFloat32Array:
 	return PackedFloat32Array([
 		obj.mass,
 		obj.gravity_scale,
-		9.8,                        # gravity_magnitude — from scene gravity
+		_gravity.length(),
 		obj.physics_material_override.friction if obj.physics_material_override else 0.0,
 		obj.physics_material_override.bounce   if obj.physics_material_override else 0.0,
 		obj.linear_damp,
 		obj.angular_damp,
-		float(obj.get_meta("shape_type_int", 0)),   # ← was 0.0
-		float(obj.get_meta("dim_primary",    0.0)), # ← was 0.0
-		float(obj.get_meta("dim_secondary",  0.0)), # ← was 0.0
+		float(obj.get_meta("shape_type_int", 0)),
+		float(obj.get_meta("dim_primary",    0.0)),
+		float(obj.get_meta("dim_secondary",  0.0)),
 		0.0   # env_state_binary — always 0 for Sonata-II (ground regime)
 	])
-	# NOTE: shape_type_int and dim_primary/secondary are stored on the
-	# RigidBody3D as metadata by ObjectMaker. Replace the 0.0 literals
-	# with: obj.get_meta("shape_type_int", 0), etc.
 
 # ── Mask & freeze helpers ───────────────────────────────────────────────────────
 func _build_mask() -> void:
@@ -268,17 +271,26 @@ func _unfreeze() -> void:
 # ── Stats loader ────────────────────────────────────────────────────────────────
 func _load_stats(path: String) -> bool:
 	var f := FileAccess.open(path, FileAccess.READ)
-	if f == null: return false
+	if f == null:
+		push_error("SonataIIRuntime: cannot open %s" % path)
+		return false
 	var j : Dictionary = JSON.parse_string(f.get_as_text())
-	if j.is_empty(): return false
+	if j.is_empty():
+		push_error("SonataIIRuntime: malformed JSON at %s" % path)
+		return false
+		
 	_ss_mean  = PackedFloat32Array(j["scene_static"]["mean"])
 	_ss_std   = PackedFloat32Array(j["scene_static"]["std"])
 	_os_mean  = PackedFloat32Array(j["obj_static"]["mean"])
 	_os_std   = PackedFloat32Array(j["obj_static"]["std"])
+	
+	var dyn : Dictionary = j["obj_dynamic"]
 	_dyn_mean = PackedFloat32Array(j["obj_dynamic"]["mean"])
 	_dyn_std  = PackedFloat32Array(j["obj_dynamic"]["std"])
+	
 	_nbr_mean = PackedFloat32Array(j["neighbourhood"]["mean"])
 	_nbr_std  = PackedFloat32Array(j["neighbourhood"]["std"])
+	
 	_tgt_mean = PackedFloat32Array(j["target"]["mean"])
 	_tgt_std  = PackedFloat32Array(j["target"]["std"])
 	return true

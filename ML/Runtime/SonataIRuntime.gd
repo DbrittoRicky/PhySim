@@ -119,14 +119,22 @@ func _push(frame: PackedFloat32Array) -> void:
 	_ring_head = (_ring_head + 1) % WINDOW
 	_seen = mini(_seen + 1, WINDOW)
 
-# ── Stats loader ────────────────────────────────────────────────────────────────
 func _load_stats(path: String) -> bool:
 	var f := FileAccess.open(path, FileAccess.READ)
-	if f == null: return false
+	if f == null:
+		push_error("SonataIRuntime: cannot open %s" % path)
+		return false
 	var j : Dictionary = JSON.parse_string(f.get_as_text())
-	if j.is_empty(): return false
-	_ctx_mean = PackedFloat32Array(j["obj_dynamic"]["mean"])
-	_ctx_std  = PackedFloat32Array(j["obj_dynamic"]["std"])
-	_tgt_mean = PackedFloat32Array(j["target"]["mean"])
-	_tgt_std  = PackedFloat32Array(j["target"]["std"])
+	if j.is_empty():
+		push_error("SonataIRuntime: empty or malformed JSON at %s" % path)
+		return false
+
+	var dyn : Dictionary = j["dynamic_features"]
+	_ctx_mean = PackedFloat32Array(Array(dyn["mean"]).slice(0, NTARGET))
+	_ctx_std  = PackedFloat32Array(Array(dyn["std"]).slice(0, NTARGET))
+
+	# For Sonata-I the target is the same 13-channel state vector,
+	# so target stats == context stats (same distribution)
+	_tgt_mean = _ctx_mean.duplicate()
+	_tgt_std  = _ctx_std.duplicate()
 	return true

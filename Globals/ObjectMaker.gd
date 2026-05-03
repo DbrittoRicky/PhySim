@@ -178,12 +178,12 @@ func _on_spawn_button_pressed(packed: PackedScene) -> void:
 	spawn_from_scene(packed, Vector3(0.0, 2.0, 0.0))
 
 func _apply_env_damping(body: RigidBody3D) -> void:
-	var drag : float = EnvironmentManager.get_drag_coefficeint()
+	var drag : float = EnvironmentManager.get_drag_coefficient()
 	body.linear_damp  = maxf(body.linear_damp,  drag)
 	body.angular_damp = maxf(body.angular_damp, drag * 0.5)
 
 func _update_all_damping(state: EnvironmentManager.EnvState) -> void:
-	var drag : float = EnvironmentManager.get_drag_coefficeint()
+	var drag : float = EnvironmentManager.get_drag_coefficient()
 	for obj in _spawned_objects:
 		if is_instance_valid(obj) and obj is RigidBody3D:
 			var rb := obj as RigidBody3D
