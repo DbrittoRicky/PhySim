@@ -6,8 +6,8 @@
 
 extends Node
 
-const _PATH_S1 := "res://ML/Models/sonata-I.onnx"
-const _PATH_S2 := "res://ML/Models/sonata-II.onnx"
+const _PATH_S1 := "res://ML/Models/sonata1.onnx"
+const _PATH_S2 := "res://ML/Models/sonata2.onnx"
 
 var _session_s1: ONNXLoader
 var _session_s2: ONNXLoader
