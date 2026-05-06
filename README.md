@@ -143,3 +143,6 @@ Contributions are welcome, especially in these areas:
 * Soft bodies prototype
 
 * Procedural animation layer
+
+
+**This project is licensed under the GNU General Public License v3.0**
