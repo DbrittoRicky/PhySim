@@ -117,6 +117,10 @@ text = "Fluid"
 
 [node name="Add Fluid" parent="Top Panel/HBoxContainer/VBOx" unique_id=1511948030 instance=ExtResource("10_fevae")]
 
+[node name="MLToggle" type="CheckButton" parent="Top Panel/HBoxContainer/VBOx" unique_id=1475241336]
+layout_mode = 2
+text = "ML Off"
+
 [node name="Outliner" type="MarginContainer" parent="." unique_id=1423419931]
 layout_mode = 1
 anchors_preset = 11
@@ -247,6 +251,7 @@ layout_mode = 2
 
 [connection signal="pressed" from="Top Panel/HBoxContainer/VBOx/Add_Floor" to="." method="_on_add_floor_pressed"]
 [connection signal="pressed" from="Top Panel/HBoxContainer/VBOx/Button" to="." method="_on_button_pressed"]
+[connection signal="toggled" from="Top Panel/HBoxContainer/VBOx/MLToggle" to="." method="_on_ml_toggle_toggled"]
 [connection signal="item_selected" from="Outliner/VBoxContainer/Objects/ItemList" to="Outliner/VBoxContainer/Objects/ItemList" method="_on_item_selected"]
 [connection signal="pressed" from="Playback/HBoxContainer/Playback_button" to="Playback" method="_on_playback_button_pressed"]
 [connection signal="pressed" from="Playback/HBoxContainer/Step_button" to="Playback" method="_on_step_button_pressed"]

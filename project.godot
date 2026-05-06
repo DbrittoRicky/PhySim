@@ -24,6 +24,7 @@ config/icon="res://icon.svg"
 SignalManager="*res://Globals/Signal_Manager.gd"
 ObjectMaker="res://Globals/ObjectMaker.gd"
 EnvironmentManager="*res://Globals/EnvironmentManager.gd"
+MLManager="*uid://dqnnkjvmnvml8"
 
 [display]
 
@@ -36,6 +37,7 @@ obj=""
 Physics_property=""
 Ragdoll=""
 "Ragdoll Property"=""
+ml_scene_manager=""
 
 [input]
 
