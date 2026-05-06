@@ -1,9 +1,27 @@
-extends MarginContainer
+#Physics Simulation Environment - A Godot 4 physics sandbox with ragdolls,
+#fluid dynamics, and a Blender-like editor interface.
+#Copyright (C) 2026 Tricia Almeida
+#Copyright (C) 2026 Ricky Dbritto
+#Copyright (C) 2026 Steve Miranda
+#Copyright (C) 2026 Dhruv Dalvi
+#
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+extends MarginContainer
 
 @onready var playback_button: Button = $HBoxContainer/Playback_button
 @onready var step_button: Button = $HBoxContainer/Step_button
-
 
 const FIXED_DELTA := 1.0 / 60.0
 var is_playing := true
