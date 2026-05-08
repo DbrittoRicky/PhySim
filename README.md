@@ -187,8 +187,8 @@ This program is distributed in the hope that it will be useful, but **WITHOUT AN
 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-The full license text is available in the [COPYING](COPYING) file included in this repository.
+The full license text is available in the [COPYING](COPYING.txt) file included in this repository.
 
-For a list of all copyright holders, see the [AUTHORS](AUTHORS) file.
+For a list of all copyright holders, see the [AUTHORS](AUTHORS.txt) file.
 
 > **Note on third-party components:** The `bin/` folder from the Godot ONNX AI Models Loader GDExtension is a binary dependency and is governed by its own upstream license. PhySim's GPL license applies to PhySim's own source code only.
